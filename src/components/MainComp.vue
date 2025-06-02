@@ -164,7 +164,9 @@
 
               <!-- AI Response -->
               <div v-if="message.type === 'ai'" class="d-flex justify-start">
-                <div class="message-bubble grey lighten-4" v-html="formatMessage(message.content)"></div>
+                <div class="message-bubble grey lighten-4"
+                  v-html="message.id === messages[messages.length - 1].id ? formatMarkdown(typedContent) : formatMarkdown(message.content)">
+                </div>
               </div>
             </div>
 
@@ -231,6 +233,8 @@
 </template>
 
 <script>
+import { marked } from "marked";
+
 import Snackbar from "./Snackbar.vue"
 export default {
   components: {
@@ -239,6 +243,8 @@ export default {
   name: 'Chat.aiInterface',
   data() {
     return {
+      // for slow text
+      typedContent: '',
       username: '',
       nameInput: '',
       showWelcome: false,
@@ -264,22 +270,41 @@ export default {
       ]
     }
   },
+  created() {
+    this.checkLocalStorage()
+  },
   mounted() {
     // Set initial drawer state based on screen size
     this.drawer = !this.$vuetify.breakpoint.mobile;
-    this.checkLocalStorage();
+    // this.checkLocalStorage();
 
   },
   updated() {
     this.scrollToBottom()
   },
   watch: {
+    messages() {
+      this.$nextTick(() => {
+        const container = this.$refs.messagesContainer;
+        if (container) container.scrollTop = container.scrollHeight;
+      });
+    },
     '$vuetify.breakpoint.mobile'(isMobile) {
       // Auto-close drawer on mobile, open on desktop
       this.drawer = !isMobile;
     }
   },
   methods: {
+    async startTyping(fullMessage) {
+      this.typedContent = '';
+      for (let i = 0; i < fullMessage.length; i++) {
+        this.typedContent += fullMessage[i];
+        await new Promise(resolve => setTimeout(resolve, 20)); // 20ms per character
+      }
+    },
+    formatMarkdown(text) {
+      return marked(text); // Optional: if you still want markdown support
+    },
     async sendMessage() {
       if (!this.currentMessage.trim() || this.isLoading) return;
 
@@ -316,7 +341,8 @@ export default {
           content: response,
           timestamp: new Date()
         };
-
+        // Call the slow effect
+        this.startTyping(response);
         this.messages.push(aiMessage);
       } catch (error) {
         console.error('Error calling chat.ai API:', error);
@@ -349,7 +375,7 @@ export default {
       // Use the correct API endpoint
       const apiUrl = `${process.env.VUE_APP_GEMINI_BASE_API_URL}${modelName}:generateContent?key=${this.apiKey}`;
 
-      try {
+      // try {
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
@@ -391,16 +417,12 @@ export default {
 
         throw new Error('No valid response received from Chat.ai API');
 
-      } catch (error) {
-        console.error(' API call failed:', error);
-        throw error;
-      }
+      // } catch (error) {
+        // console.error(' API call failed:', error);
+        // throw error;
+      // }
     },
 
-    formatMessage(content) {
-      // Basic formatting for line breaks
-      return content.replace(/\n/g, '<br>');
-    },
 
     scrollToBottom() {
       this.$nextTick(() => {
@@ -428,13 +450,16 @@ export default {
         this.dialog = true;
       }
     },
+
+
     handleSave() {
       const trimmed = this.nameInput.trim();
-      if (trimmed) {
+      if (trimmed.length > 0) {
         localStorage.setItem('username', trimmed);
         this.username = trimmed;
         this.dialog = false;
-        // this.displayWelcome();
+      } else {
+        this.errorMessage = "Name cannot be empty.";
       }
     },
 
