@@ -9,10 +9,10 @@
             <v-col>
                 <v-icon medium :color="$globalData.IconColor">{{
                     $globalData.Icon
-                    }}</v-icon>
+                }}</v-icon>
                 <span class="black--text body-2 pl-2">{{
                     $globalData.alerttitle
-                    }}</span>
+                }}</span>
             </v-col>
         </v-row>
     </v-snackbar>
