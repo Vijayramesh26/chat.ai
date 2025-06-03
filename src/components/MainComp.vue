@@ -101,7 +101,8 @@
 
       <!-- Left side - Title and Version -->
       <div class="d-flex align-center">
-        <h2 class="white--text font-weight-regular mr-2">Chat.ai</h2>
+        <!-- <h2 class="white--text font-weight-regular mr-2">Chat.ai</h2> -->
+         <v-img src="../assets/chat_ai_logo.png" width="125"></v-img>
         <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn text small class="grey--text text--lighten-1" v-bind="attrs" v-on="on">
@@ -132,8 +133,8 @@
           Upgrade
         </v-btn>
 
-        <v-avatar size="32" class="red darken-1">
-          <span class="white--text font-weight-bold">{{ username[0] }}</span>
+        <v-avatar size="32" class="black">
+          <span class="white--text text--lighten-1 font-weight-bold">{{ username[0] }}</span>
         </v-avatar>
       </div>
     </v-app-bar>
@@ -207,7 +208,7 @@
 
                 <!-- Input Field -->
                 <div class="input-field-wrapper">
-                  <v-text-field v-model="currentMessage" ref="messageInput" placeholder="Ask anything" solo flat
+                  <v-text-field autofocus v-model="currentMessage" ref="messageInput" placeholder="Ask anything" solo flat
                     hide-details dark background-color="transparent" :disabled="isLoading"
                     @keyup.enter="sendMessage"></v-text-field>
                 </div>
@@ -233,6 +234,7 @@
             </v-form>
           </v-card>
         </div>
+        <div class="d-flex align-center justify-center mt-1 grey--text text--darken-3 caption">Chat.ai can make mistakes, so double-check it</div>
       </div>
       <Snackbar />
     </v-main>
@@ -262,11 +264,11 @@ export default {
       messages: [],
       messageIdCounter: 1,
       errorMessage: '',
-      selectedModel: '2.5 Flash',
+      selectedModel: 'Beta',
       availableModels: [
-        { label: '2.5 Flash', value: 'gemini-2.0-flash' },
-        { label: '1.5 Pro', value: 'gemini-1.5-pro' },
-        { label: '1.5 Flash', value: 'gemini-1.5-flash' }
+        // { label: 'Beta', value: 'gemini-2.0-flash' },
+        // { label: '1.5 Pro', value: 'gemini-1.5-pro' },
+        // { label: '1.5 Flash', value: 'gemini-1.5-flash' }
       ],
       // Replace with your actual chat.ai API key
       apiKey: process.env.VUE_APP_GEMINI_API_KEY, //'AIzaSyA2jtqVHHYrO-ebcOw0nMZjWoT-XjHadFc',
