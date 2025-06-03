@@ -96,7 +96,7 @@
     <v-app-bar app flat class="grey darken-4" height="64">
       <!-- Mobile Menu Button -->
       <v-btn v-if="$vuetify.breakpoint.mobile" icon @click="drawer = !drawer" class="mr-2">
-        <v-icon>mdi-menu</v-icon>
+        <v-icon color="grey lighten-1">mdi-menu</v-icon>
       </v-btn>
 
       <!-- Left side - Title and Version -->
