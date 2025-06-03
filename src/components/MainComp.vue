@@ -163,18 +163,25 @@
               </div>
 
               <!-- AI Response -->
-              <div v-if="message.type === 'ai'" class="d-flex justify-start">
-                <div class="message-bubble grey lighten-4"
+              <div v-if="message.type === 'ai'" class="d-flex justify-start flex-column "> 
+                <div class="message-bubble grey lighten-4 overflow-x-auto" :style="{ maxWidth: $vuetify.breakpoint.mobile ? '100%' : '70%' }"
+              
                   v-html="message.id === messages[messages.length - 1].id ? formatMarkdown(typedContent) : formatMarkdown(message.content)">
                 </div>
-              </div>
+                <div class="d-flex align-end justify-left">
+                  <v-btn small  outlined @click="copyText(message.content)">
+                    <v-icon small color="white" class="mt-2 ">mdi-content-copy</v-icon>
+                  </v-btn>
+                </div>
+              </div> 
             </div>
 
             <!-- Loading Message -->
             <div v-if="isLoading" class="d-flex justify-start">
-              <div class="message-bubble ai-bubble">
+              <div class="message-bubble grey lighten-4">
                 <div class="d-flex align-center">
-                  <v-progress-circular indeterminate size="20" width="2" class="mr-2"></v-progress-circular>
+                  <!-- <v-progress-circular indeterminate size="15" width="2" class="mr-2"></v-progress-circular> -->
+                  <v-icon class="blue--text text--lighten-4 spin">mdi-star-four-points</v-icon>
                   <span>Thinking...</span>
                 </div>
               </div>
@@ -279,9 +286,9 @@ export default {
     // this.checkLocalStorage();
 
   },
-  updated() {
-    this.scrollToBottom()
-  },
+  // updated() {
+  //   this.scrollToBottom()
+  // },
   watch: {
     messages() {
       this.$nextTick(() => {
@@ -295,12 +302,23 @@ export default {
     }
   },
   methods: {
+    copyText(textToCopy) {
+  navigator.clipboard.writeText(textToCopy)
+    .then(() => {
+      console.log('Copied!');
+    })
+    .catch(err => {
+      console.error('Failed to copy:', err);
+    });
+},
+
     async startTyping(fullMessage) {
       this.typedContent = '';
       for (let i = 0; i < fullMessage.length; i++) {
         this.typedContent += fullMessage[i];
-        await new Promise(resolve => setTimeout(resolve, 20)); // 20ms per character
+        await new Promise(resolve => setTimeout(resolve, 10)); // 20ms per character
       }
+      this.scrollToBottom()
     },
     formatMarkdown(text) {
       return marked(text); // Optional: if you still want markdown support
@@ -511,7 +529,7 @@ export default {
 
 
 .message-bubble {
-  max-width: 70%;
+  /* max-width: 70%; */
   padding: 12px 16px;
   border-radius: 12px;
   word-wrap: break-word;
@@ -620,5 +638,21 @@ export default {
 .input-container {
   max-width: 100%;
   overflow-x: hidden;
+}
+
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
+
+.spin {
+  animation-name: spin;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 </style>
