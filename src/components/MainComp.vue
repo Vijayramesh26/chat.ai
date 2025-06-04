@@ -1,111 +1,102 @@
 <template>
   <v-app dark>
-    <!-- <v-dialog v-model="showCard">
-      <v-card class="pa-4 mx-auto mt-8" max-width="400" color="#1e1e1e" dark elevation="8">
-        <v-card-title>Hello, {{ username }}</v-card-title>
-        <v-card-text>Welcome back! Ready to ask something?</v-card-text>
-      </v-card>
-    </v-dialog> -->
-    <v-dialog v-model="dialog" max-width="500" class="rounded-lg" persistent>
-      <v-card>
-
-
-        <!-- Name input -->
-        <v-card v-if="username == ''" class="pa-5" dark elevation="10">
-          <v-card-title class="headline">Enter your name</v-card-title>
-          <v-card-text>
-            <v-text-field v-model="nameInput" label="Your name" outlined dense></v-text-field>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" @click="handleSave">Save</v-btn>
-          </v-card-actions>
-        </v-card>
+    <!-- Name Input Dialog -->
+    <v-dialog v-model="dialog" max-width="500" persistent>
+      <v-card v-if="username == ''" class="pa-5" dark elevation="10">
+        <v-card-title class="headline">Welcome to Chat.ai</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="nameInput" label="Enter your name" outlined dense autofocus></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="handleSave" :disabled="!nameInput.trim()">
+            Get Started
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
+
     <!-- Navigation Drawer -->
     <v-navigation-drawer v-model="drawer" app :temporary="$vuetify.breakpoint.mobile"
-      :permanent="!$vuetify.breakpoint.mobile" class="grey darken-4" width="280">
+      :permanent="!$vuetify.breakpoint.mobile" class="elevation-4" color="#1a1a1a" width="280">
       <!-- Sidebar Header -->
-      <div class="pa-4">
-        <v-btn icon @click="drawer = !drawer">
-          <v-icon color="grey lighten-1">mdi-menu</v-icon>
+      <div class="pa-4 border-bottom">
+        <v-btn block outlined color="primary" class="text-none" @click="startNewChat">
+          <v-icon left>mdi-plus</v-icon>
+          New Chat
         </v-btn>
       </div>
 
-      <!-- New Chat -->
-      <v-list-item class="px-4 mb-2" @click="startNewChat">
+      <!-- Explore Section -->
+      <v-list-item class="px-4 py-3" link>
         <v-list-item-icon>
-          <v-icon color="grey lighten-1">mdi-plus</v-icon>
+          <v-icon color="blue lighten-2">mdi-diamond-stone</v-icon>
         </v-list-item-icon>
         <v-list-item-content>
-          <v-list-item-title class="grey--text text--lighten-1">New chat</v-list-item-title>
+          <v-list-item-title class="grey--text text--lighten-2">Explore Gems</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
-      <!-- Explore Gems -->
-      <v-list-item class="px-4 mb-4">
-        <v-list-item-icon>
-          <v-icon color="grey lighten-1">mdi-diamond-stone</v-icon>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title class="grey--text text--lighten-1">Explore Gems</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+      <v-divider class="mx-4"></v-divider>
 
       <!-- Recent Section -->
-      <div class="px-4 mb-2">
-        <div class="grey--text text--lighten-1 text-caption font-weight-medium">Recent</div>
+      <div class="px-4 py-3">
+        <div class="grey--text text--lighten-1 text-caption font-weight-bold mb-2">RECENT CHATS</div>
+        <v-list dense class="transparent">
+          <v-list-item v-for="item in recentChats" :key="item.id" class="px-2 py-1 rounded" link>
+            <v-list-item-content>
+              <v-list-item-title class="grey--text text--lighten-3 text-body-2">
+                {{ item.title }}
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+
+        <v-btn text small class="grey--text text--lighten-1 mt-2 text-none">
+          Show more
+          <v-icon small class="ml-1">mdi-chevron-down</v-icon>
+        </v-btn>
       </div>
 
-      <!-- Recent Chat Items -->
-      <v-list dense class="py-0">
-        <v-list-item v-for="item in recentChats" :key="item.id" class="px-4 py-2">
-          <v-list-item-content>
-            <v-list-item-title class="grey--text text--lighten-2 text-body-2">
-              {{ item.title }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-
-      <!-- Show More -->
-      <v-list-item class="px-4 mt-2">
-        <v-list-item-content>
-          <v-list-item-title class="grey--text text--lighten-1 text-body-2">
-            Show more
-            <v-icon small class="ml-1">mdi-chevron-down</v-icon>
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      <!-- Settings & Help at Bottom -->
+      <!-- Settings at Bottom -->
       <template v-slot:append>
-        <v-list-item class="px-4">
+        <v-divider></v-divider>
+        <v-list-item class="px-4" link>
           <v-list-item-icon>
             <v-icon color="grey lighten-1">mdi-cog</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title class="grey--text text--lighten-1">Settings & help</v-list-item-title>
+            <v-list-item-title class="grey--text text--lighten-2">Settings & Help</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </template>
     </v-navigation-drawer>
 
     <!-- App Bar -->
-    <v-app-bar app flat class="grey darken-4" height="64">
+    <v-app-bar app flat color="#1a1a1a" height="70" elevation="2">
       <!-- Mobile Menu Button -->
-      <v-btn v-if="$vuetify.breakpoint.mobile" icon @click="drawer = !drawer" class="mr-2">
+      <v-btn v-if="$vuetify.breakpoint.mobile" icon @click="drawer = !drawer" class="mr-3">
         <v-icon color="grey lighten-1">mdi-menu</v-icon>
       </v-btn>
 
-      <!-- Left side - Title and Version -->
+      <!-- Logo and Model Selector -->
       <div class="d-flex align-center">
-        <!-- <h2 class="white--text font-weight-regular mr-2">Chat.ai</h2> -->
-         <v-img src="../assets/chat_ai_logo.png" width="125"></v-img>
-        <v-menu offset-y>
+        <div class="d-flex align-center mr-4">
+          <!-- <h2 class="blue--text text--lighten-1 font-weight-bold mr-1">Chat</h2>
+          <h2 class="white--text font-weight-light">.ai</h2> -->
+          <v-img src="../assets/chat_ai_logo.png" width="100"></v-img>
+          <span class="ml-1 grey--text text--darken-1 text-capitalize caption">Beta</span>
+        </div>
+
+        <!-- <v-menu offset-y>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn text small class="grey--text text--lighten-1" v-bind="attrs" v-on="on">
+            <v-btn 
+              text 
+              small 
+              class="grey--text text--lighten-1 text-none" 
+              v-bind="attrs" 
+              v-on="on"
+            >
               {{ selectedModel }}
               <v-icon small class="ml-1">mdi-chevron-down</v-icon>
             </v-btn>
@@ -115,117 +106,141 @@
               <v-list-item-title>{{ model.label }}</v-list-item-title>
             </v-list-item>
           </v-list>
-        </v-menu>
+        </v-menu> -->
       </div>
 
       <v-spacer></v-spacer>
 
-      <!-- Right side - Search, Upgrade, Avatar -->
+      <!-- Right side actions -->
       <div class="d-flex align-center">
         <v-btn icon class="mr-2">
-          <v-icon>mdi-magnify</v-icon>
+          <v-icon color="grey lighten-1">mdi-magnify</v-icon>
         </v-btn>
 
-        <!-- Hide upgrade button on mobile -->
-        <v-btn v-if="!$vuetify.breakpoint.mobile" outlined small class="red--text text--lighten-1 mr-4"
-          style="border-color: #ef5350">
+        <v-btn v-if="!$vuetify.breakpoint.mobile" outlined small color="orange" class="mr-4 text-none">
           <v-icon small class="mr-1">mdi-arrow-up</v-icon>
           Upgrade
         </v-btn>
 
-        <v-avatar size="32" class="black">
-          <span class="white--text text--lighten-1 font-weight-bold">{{ username[0] }}</span>
+        <v-avatar size="36" color="primary">
+          <span class="white--text font-weight-bold">{{ username[0] }}</span>
         </v-avatar>
       </div>
     </v-app-bar>
 
     <!-- Main Content -->
     <v-main class="black">
-      <!-- Chat Container with Fixed Layout -->
       <div class="chat-layout">
         <!-- Messages Area -->
         <div class="messages-container" ref="messagesContainer">
-          <!-- Initial Greeting (shown when no messages) -->
-          <div v-if="messages.length === 0" class="greeting-container">
-            <h1 class="greeting-text">
-              <span class="blue--text text--lighten-1">Hello, </span>
-              <span class="red--text text--lighten-1">{{ username }}</span>
-            </h1>
+          <!-- Welcome Screen -->
+          <div v-if="messages.length === 0" class="welcome-container">
+            <div class="text-center d-flex flex-column align-center">
+              <!-- <v-icon size="80" color="blue lighten-2" class="mb-4">mdi-robot-outline</v-icon> -->
+              <!-- <v-img src="../assets/chat_ai_logo.png" width="150" ></v-img> -->
+
+              <h1 class="display-1 font-weight-light mb-2">
+                <span class="blue--text text--lighten-1">Hello, </span>
+                <span class="red--text text--lighten-1">{{ username }}</span>
+              </h1>
+              <p class="grey--text text--lighten-1 text-h6">How can I help you today?</p>
+
+              <!-- Suggestion Cards -->
+              <div class="suggestion-cards mt-8" v-if="!$vuetify.breakpoint.mobile">
+                <v-row justify="center">
+                  <v-col cols="12" sm="6" md="4" v-for="suggestion in suggestions" :key="suggestion.id">
+                    <v-card class="suggestion-card pa-4" outlined hover @click="currentMessage = suggestion.text">
+                      <v-icon color="blue lighten-2" class="mb-2">{{ suggestion.icon }}</v-icon>
+                      <div class="text-body-2 font-weight-medium">{{ suggestion.title }}</div>
+                      <div class="text-caption grey--text">{{ suggestion.description }}</div>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </div>
+            </div>
           </div>
 
           <!-- Chat Messages -->
           <div v-else class="messages-list">
-            <div v-for="message in messages" :key="message.id" class="message-item">
+            <div v-for="message in messages" :key="message.id" class="message-wrapper">
               <!-- User Message -->
-              <div v-if="message.type === 'user'" class="d-flex justify-end">
-                <div class="message-bubble primary white--text" color="">
+              <div v-if="message.type === 'user'" class="user-message-container">
+                <div class="user-message">
                   {{ message.content }}
                 </div>
               </div>
 
               <!-- AI Response -->
-              <div v-if="message.type === 'ai'" class="d-flex justify-start flex-column "> 
-                <div class="message-bubble grey lighten-4 overflow-x-auto" :style="{ maxWidth: $vuetify.breakpoint.mobile ? '100%' : '70%' }"
-              
-                  v-html="message.id === messages[messages.length - 1].id ? formatMarkdown(typedContent) : formatMarkdown(message.content)">
+              <div v-if="message.type === 'ai'" class="ai-message-container">
+                <v-avatar size="32" class="mr-3">
+                  <!-- <v-icon color="white">mdi-robot</v-icon> -->
+                  <v-img src="../assets/favicon.png"></v-img>
+                </v-avatar>
+                <div class="ai-message-content overflow-x-auto">
+                  <div class="ai-message"
+                    v-html="message.id === messages[messages.length - 1].id ? formatMarkdown(typedContent) : formatMarkdown(message.content)">
+                  </div>
+                  <div class="message-actions mt-2">
+                    <v-btn x-small text color="grey lighten-1" @click="copyText(message.content)">
+                      <v-icon x-small class="mr-1">mdi-content-copy</v-icon>
+                      Copy
+                    </v-btn>
+                    <v-btn x-small text color="grey lighten-1">
+                      <v-icon x-small class="mr-1">mdi-thumb-up-outline</v-icon>
+                      Like
+                    </v-btn>
+                  </div>
                 </div>
-                <div class="d-flex align-end justify-left">
-                  <v-btn small  outlined @click="copyText(message.content)">
-                    <v-icon small color="white" class="mt-2 ">mdi-content-copy</v-icon>
-                  </v-btn>
-                </div>
-              </div> 
+              </div>
             </div>
 
             <!-- Loading Message -->
-            <div v-if="isLoading" class="d-flex justify-start">
-              <div class="message-bubble grey lighten-4">
-                <div class="d-flex align-center">
-                  <!-- <v-progress-circular indeterminate size="15" width="2" class="mr-2"></v-progress-circular> -->
-                  <v-icon class="blue--text text--lighten-4 spin">mdi-star-four-points</v-icon>
-                  <span>Thinking...</span>
-                </div>
-              </div>
+            <div v-if="isLoading" class="ai-message-container">
+              <v-avatar size="32" class="mr-3">
+                <!-- <v-icon color="white" class="spin">mdi-robot</v-icon> -->
+                <v-img src="../assets/favicon.png"></v-img>
+              </v-avatar>
+              <!-- <div class="ai-message-content">
+                <div class="loading-message">
+                  <v-icon class="blue--text text--lighten-2 mr-2 pulse">mdi-circle</v-icon> -->
+              <span class="grey--text text--lighten-2">Thinking...</span>
+              <!-- </div>
+              </div> -->
             </div>
           </div>
         </div>
 
-        <!-- Fixed Input Area -->
         <!-- Error Alert -->
         <v-alert v-if="errorMessage" type="error" dismissible @input="errorMessage = ''" class="mx-4 mb-2">
           {{ errorMessage }}
         </v-alert>
 
-        <!-- Input Card -->
+        <!-- Input Area -->
         <div class="input-wrapper">
-          <v-card class="input-card grey darken-3 mx-3" elevation="2">
+          <v-card class="input-card elevation-8 grey darken-4" >
             <v-form @submit.prevent="sendMessage">
-              <div class="input-row">
-                <!-- Add Button -->
-                <v-btn icon color="grey lighten-4">
+              <div class="input-container">
+                <v-btn icon color="grey lighten-2" class="mr-2">
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
 
-                <!-- Input Field -->
-                <div class="input-field-wrapper">
-                  <v-text-field autofocus v-model="currentMessage" ref="messageInput" placeholder="Ask anything" solo flat
-                    hide-details dark background-color="transparent" :disabled="isLoading"
-                    @keyup.enter="sendMessage"></v-text-field>
-                </div>
+                <v-text-field v-model="currentMessage" ref="messageInput" placeholder="Ask anything..." solo flat
+                  hide-details dark background-color="transparent" :disabled="isLoading" @keyup.enter="sendMessage"
+                  class="message-input" autofocus></v-text-field>
 
-                <!-- Action Buttons -->
                 <div class="action-buttons">
-                  <!-- Desktop: Show text buttons -->
-
-                  <v-btn icon small color="grey lighten-2">
-                    <v-icon small>mdi-file-search</v-icon>
+                  <v-btn icon color="grey lighten-2">
+                    <v-icon>mdi-paperclip</v-icon>
                   </v-btn>
-
                   <v-btn icon color="grey lighten-2">
                     <v-icon>mdi-microphone</v-icon>
                   </v-btn>
-
-                  <!-- Send Button -->
+                  <!-- <v-btn icon class="grey darken-1 d-flex align-center justify-center" :disabled="!currentMessage.trim() || isLoading" @click="sendMessage">
+                    <v-icon :class="!currentMessage.trim() || isLoading
+                      ? 'grey--text text--lighten-1'
+                      : 'blue--text text--darken-1'"  >mdi-send</v-icon>
+                  </v-btn> -->
+                   <!-- Send Button -->
                   <v-btn icon color="blue" :disabled="!currentMessage.trim() || isLoading" @click="sendMessage">
                     <v-icon>mdi-send</v-icon>
                   </v-btn>
@@ -233,10 +248,14 @@
               </div>
             </v-form>
           </v-card>
+
+          <div class="disclaimer">
+            <span class="grey--text text--darken-1 caption">
+              Chat.ai can make mistakes, so double-check it.
+            </span>
+          </div>
         </div>
-        <div class="d-flex align-center justify-center mt-1 grey--text text--darken-3 caption">Chat.ai can make mistakes, so double-check it</div>
       </div>
-      <Snackbar />
     </v-main>
   </v-app>
 </template>
@@ -244,20 +263,15 @@
 <script>
 import { marked } from "marked";
 
-import Snackbar from "./Snackbar.vue"
 export default {
-  components: {
-    Snackbar
-  },
-  name: 'Chat.aiInterface',
+  name: 'ChatAiInterface',
   data() {
     return {
-      // for slow text
       typedContent: '',
       username: '',
       nameInput: '',
       showWelcome: false,
-      dialog: false, // Controls v-dialog visibility
+      dialog: false,
       drawer: false,
       currentMessage: '',
       isLoading: false,
@@ -266,16 +280,38 @@ export default {
       errorMessage: '',
       selectedModel: 'Beta',
       availableModels: [
-        // { label: 'Beta', value: 'gemini-2.0-flash' },
-        // { label: '1.5 Pro', value: 'gemini-1.5-pro' },
-        // { label: '1.5 Flash', value: 'gemini-1.5-flash' }
+        { label: 'Beta', value: 'gemini-2.0-flash' },
+        { label: '1.5 Pro', value: 'gemini-1.5-pro' },
+        { label: '1.5 Flash', value: 'gemini-1.5-flash' }
       ],
-      // Replace with your actual chat.ai API key
-      apiKey: process.env.VUE_APP_GEMINI_API_KEY, //'AIzaSyA2jtqVHHYrO-ebcOw0nMZjWoT-XjHadFc',
+      apiKey: process.env.VUE_APP_GEMINI_API_KEY,
       recentChats: [
         { id: 1, title: 'UI UX Design Guide' },
-        { id: 2, title: 'Go Programming  ...' },
+        { id: 2, title: 'Go Programming ...' },
         { id: 3, title: 'Vue.js Vuetify ...' },
+      ],
+      suggestions: [
+        {
+          id: 1,
+          icon: 'mdi-lightbulb-outline',
+          title: 'Creative Ideas',
+          description: 'Get inspiration for projects',
+          text: 'I need some creative ideas for a new mobile app'
+        },
+        {
+          id: 2,
+          icon: 'mdi-code-tags',
+          title: 'Coding Help',
+          description: 'Get help with programming',
+          text: 'Help me understand async/await in JavaScript'
+        },
+        {
+          id: 3,
+          icon: 'mdi-school-outline',
+          title: 'Learn Something',
+          description: 'Explain a concept',
+          text: 'Explain quantum computing in simple terms'
+        }
       ]
     }
   },
@@ -283,55 +319,48 @@ export default {
     this.checkLocalStorage()
   },
   mounted() {
-    // Set initial drawer state based on screen size
     this.drawer = !this.$vuetify.breakpoint.mobile;
-    // this.checkLocalStorage();
-
   },
-  // updated() {
-  //   this.scrollToBottom()
-  // },
   watch: {
     messages() {
       this.$nextTick(() => {
-        const container = this.$refs.messagesContainer;
-        if (container) container.scrollTop = container.scrollHeight;
+        this.scrollToBottom();
       });
     },
     '$vuetify.breakpoint.mobile'(isMobile) {
-      // Auto-close drawer on mobile, open on desktop
       this.drawer = !isMobile;
     }
   },
   methods: {
     copyText(textToCopy) {
-  navigator.clipboard.writeText(textToCopy)
-    .then(() => {
-      console.log('Copied!');
-    })
-    .catch(err => {
-      console.error('Failed to copy:', err);
-    });
-},
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+          console.log('Copied!');
+        })
+        .catch(err => {
+          console.error('Failed to copy:', err);
+        });
+    },
 
     async startTyping(fullMessage) {
       this.typedContent = '';
       for (let i = 0; i < fullMessage.length; i++) {
         this.typedContent += fullMessage[i];
-        await new Promise(resolve => setTimeout(resolve, 10)); // 20ms per character
+        await new Promise(resolve => setTimeout(resolve, 10)); // 10ms per character
       }
       this.scrollToBottom()
     },
+
     formatMarkdown(text) {
       return marked(text); // Optional: if you still want markdown support
     },
+
     async sendMessage() {
       if (!this.currentMessage.trim() || this.isLoading) return;
 
       // Check if API key is set
       if (!this.apiKey || this.apiKey === 'YOUR_API_KEY') {
-        // this.errorMessage = 'Please set your Chat.ai API key in the component';
-        this.MessageBar('E')
+        this.errorMessage = 'Please set your Chat.ai API key in the environment variables';
         return;
       }
 
@@ -344,6 +373,7 @@ export default {
 
       this.messages.push(userMessage);
       const messageToSend = this.currentMessage.trim();
+      this.currentMessage = '';
       this.isLoading = true;
       this.errorMessage = '';
 
@@ -354,34 +384,23 @@ export default {
 
       try {
         const response = await this.callchataiAPI(messageToSend);
-        this.currentMessage = '';
+
         const aiMessage = {
           id: this.messageIdCounter++,
           type: 'ai',
           content: response,
           timestamp: new Date()
         };
-        // Call the slow effect
+
+        // Call the slow typing effect
         this.startTyping(response);
         this.messages.push(aiMessage);
       } catch (error) {
         console.error('Error calling chat.ai API:', error);
-        this.MessageBar('E')
-        // this.errorMessage = `Error: ${error.message}`;
-
-        // const errorMessage = {
-        //   id: this.messageIdCounter++,
-        //   type: 'ai',
-        //   content: 'Sorry, I encountered an error while processing your request. Please check your API key and try again.',
-        //   timestamp: new Date()
-        // };
-
-        // this.messages.push(errorMessage);
+        this.errorMessage = `Error: ${error.message}`;
       } finally {
         this.isLoading = false;
-        // this.$nextTick(() => {
         this.scrollToBottom();
-        // });
       }
     },
 
@@ -395,54 +414,47 @@ export default {
       // Use the correct API endpoint
       const apiUrl = `${process.env.VUE_APP_GEMINI_BASE_API_URL}${modelName}:generateContent?key=${this.apiKey}`;
 
-      // try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: message
-                  }
-                ]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 1024,
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: message
+                }
+              ]
             }
-          })
-        });
-
-        if (!response.ok) {
-          const errorData = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errorData}`);
-        }
-
-        const data = await response.json();
-
-        // Extract the response text from Chat.ai API response
-        if (data.candidates && data.candidates.length > 0) {
-          const candidate = data.candidates[0];
-          if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-            return candidate.content.parts[0].text;
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
           }
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorData}`);
+      }
+
+      const data = await response.json();
+
+      // Extract the response text from Chat.ai API response
+      if (data.candidates && data.candidates.length > 0) {
+        const candidate = data.candidates[0];
+        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+          return candidate.content.parts[0].text;
         }
+      }
 
-        throw new Error('No valid response received from Chat.ai API');
-
-      // } catch (error) {
-        // console.error(' API call failed:', error);
-        // throw error;
-      // }
+      throw new Error('No valid response received from Chat.ai API');
     },
-
 
     scrollToBottom() {
       this.$nextTick(() => {
@@ -462,6 +474,7 @@ export default {
         this.drawer = false;
       }
     },
+
     checkLocalStorage() {
       const storedName = localStorage.getItem('username');
       if (storedName) {
@@ -470,7 +483,6 @@ export default {
         this.dialog = true;
       }
     },
-
 
     handleSave() {
       const trimmed = this.nameInput.trim();
@@ -482,17 +494,19 @@ export default {
         this.errorMessage = "Name cannot be empty.";
       }
     },
-
   }
 }
 </script>
 
 <style scoped>
-/* Fixed Chat Layout */
+/* .main-bg {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+} */
+
 .chat-layout {
   display: flex;
   flex-direction: column;
-  height: 90vh;
+  height: calc(100vh - 70px);
   max-width: 100%;
   overflow: hidden;
 }
@@ -504,7 +518,7 @@ export default {
   min-height: 0;
 }
 
-.greeting-container {
+.welcome-container {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -512,10 +526,21 @@ export default {
   padding: 0 20px;
 }
 
-.greeting-text {
-  font-size: 2.5rem;
-  font-weight: 300;
-  text-align: center;
+.suggestion-cards {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.suggestion-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.suggestion-card:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-2px);
 }
 
 .messages-list {
@@ -524,137 +549,176 @@ export default {
   padding: 0 20px;
 }
 
-.message-item {
-  margin-bottom: 16px;
-  width: 100%;
+.message-wrapper {
+  margin-bottom: 24px;
 }
 
+.user-message-container {
+  display: flex;
+  justify-content: flex-end;
+}
 
-.message-bubble {
-  /* max-width: 70%; */
-  padding: 12px 16px;
-  border-radius: 12px;
+.user-message {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 18px 18px 4px 18px;
+  max-width: 70%;
   word-wrap: break-word;
-  font-size: 16px;
-  line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
 }
 
-
-/* Fixed Input Container */
-.input-container {
-  flex-shrink: 0;
-  padding: 16px;
-  background-color: #424242;
+.ai-message-container {
+  display: flex;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  color: #e0e0e0;
+  padding: 16px 20px;
+  border-radius: 4px 18px 18px 18px;
+  border-left: 3px solid #2196F3;
+  word-wrap: break-word;
+  line-height: 1.6;
 }
 
-.input-wrapper {
-  max-width: 800px;
-  margin: 0 auto;
+.ai-message-content {
+  flex: 1;
+  /* max-width: 70%; */
+
 }
 
-.input-card {
-  border-radius: 50px !important;
-}
+/* .ai-message {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e0e0e0;
+  padding: 16px 20px;
+  border-radius: 4px 18px 18px 18px;
+  border-left: 3px solid #2196F3;
+  word-wrap: break-word;
+  line-height: 1.6;
+} */
 
-.input-row {
+.loading-message {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 16px 20px;
+  border-radius: 4px 18px 18px 18px;
+  border-left: 3px solid #2196F3;
   display: flex;
   align-items: center;
-  padding: 8px 16px;
+}
+
+.message-actions {
+  display: flex;
   gap: 8px;
 }
 
-.input-field-wrapper {
-  flex: 1;
-  min-width: 0;
+.input-wrapper {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
 }
 
+.input-card {
+  border-radius: 25px !important; 
+  backdrop-filter: blur(10px);
+}
 
+.input-container {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  gap: 12px;
+}
+
+.message-input {
+  flex: 1;
+}
 
 .action-buttons {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
 }
 
+/* .send-btn {
+  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%) !important;
+} */
 
+.disclaimer {
+  text-align: center;
+  margin-top: 12px;
+}
 
-.input-btn {
-  color: #bdbdbd !important;
+.border-bottom {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.spin {
+  animation: spin 2s linear infinite;
+}
+
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Scrollbar */
+.messages-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* Mobile Responsive */
 @media (max-width: 600px) {
-  .greeting-text {
-    font-size: 2rem;
+
+  .user-message,
+  .ai-message-content {
+    max-width: 85%;
   }
 
   .messages-list {
     padding: 0 12px;
   }
 
-  /* .message-bubble {
-    max-width: 85%;
-    font-size: 14px;
-  } */
-
-  .input-container {
+  .input-wrapper {
     padding: 12px;
   }
 
-  .input-row {
-    padding: 6px 12px;
-    gap: 4px;
+  .suggestion-cards .col {
+    padding: 4px;
   }
-
-  .action-buttons {
-    gap: 4px;
-  }
-}
-
-/* Custom scrollbar */
-.messages-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.messages-container::-webkit-scrollbar-track {
-  background: #424242;
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-  background: #616161;
-  border-radius: 3px;
-}
-
-.messages-container::-webkit-scrollbar-thumb:hover {
-  background: #757575;
-}
-
-/* Prevent horizontal overflow */
-* {
-  box-sizing: border-box;
-}
-
-.chat-layout,
-.messages-container,
-.input-container {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-@keyframes spin {
-    from {
-        transform:rotate(0deg);
-    }
-    to {
-        transform:rotate(360deg);
-    }
-}
-
-.spin {
-  animation-name: spin;
-  animation-duration: 1000ms;
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
 }
 </style>
